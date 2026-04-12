@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Migraine Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F0EDE6;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.15);
+    --text: #1A1814;
+    --text-muted: #7A7670;
+    --text-hint: #B0ADA8;
+    --accent: #2D6A4F;
+    --accent-light: #E8F4EE;
+    --accent-text: #1B4332;
+    --warn: #C44B2B;
+    --warn-light: #FDF0EC;
+    --warn-text: #7D2E18;
+    --amber: #8B5E0A;
+    --amber-light: #FEF3DC;
+    --amber-text: #5C3D06;
+    --purple: #4B3D8F;
+    --purple-light: #EEEAFC;
+    --purple-text: #2E2460;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-pill: 100px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 430px;
+    margin: 0 auto;
+    font-size: 15px;
+  }
+
+  /* ─── Header ─── */
+  .app-header {
+    background: var(--surface);
+    padding: 52px 22px 18px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+  .app-header .date-line {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  /* ─── Nav tabs ─── */
+  .nav-tabs {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 22px;
+  }
+  .nav-tab {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .nav-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ─── Pages ─── */
+  .page { display: none; padding: 20px 16px 100px; }
+  .page.active { display: block; }
+
+  /* ─── Section ─── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-hint);
+    margin: 22px 6px 8px;
+  }
+
+  /* ─── Card ─── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+  }
+  .card-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .card-hint {
+    font-size: 12px;
+    color: var(--text-hint);
+    margin-bottom: 8px;
+    margin-top: -6px;
+  }
+
+  /* ─── Slider ─── */
+  .slider-row { display: flex; align-items: center; gap: 12px; }
+  .slider-val {
+    font-size: 16px;
+    font-weight: 500;
+    min-width: 40px;
+    text-align: right;
+    color: var(--text);
+  }
+  .slider-ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-hint);
+  }
+  input[type=range] {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--surface2);
+    border-radius: 2px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  input[type=range].warn::-webkit-slider-thumb { background: var(--warn); }
+
+  /* ─── Pills ─── */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 7px; }
+  .pill {
+    font-size: 13px;
+    padding: 7px 14px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.12s;
+    user-select: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .pill:active { transform: scale(0.96); }
+  .pill.sel-green  { background: var(--accent-light);  border-color: var(--accent);  color: var(--accent-text);  font-weight: 500; }
+  .pill.sel-red    { background: var(--warn-light);    border-color: var(--warn);    color: var(--warn-text);    font-weight: 500; }
+  .pill.sel-amber  { background: var(--amber-light);   border-color: var(--amber);   color: var(--amber-text);   font-weight: 500; }
+  .pill.sel-purple { background: var(--purple-light);  border-color: var(--purple);  color: var(--purple-text);  font-weight: 500; }
+
+  /* ─── Toggle ─── */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; }
+  .toggle-label { font-size: 14px; font-weight: 500; color: var(--text); }
+  .toggle-sub { font-size: 12px; color: var(--text-hint); margin-top: 1px; }
+  .toggle {
+    width: 44px; height: 26px;
+    border-radius: 13px;
+    background: var(--surface2);
+    border: 1px solid var(--border-strong);
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); border-color: var(--accent); }
+  .toggle.on-red { background: var(--warn); border-color: var(--warn); }
+  .toggle-thumb {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+    top: 2px; left: 2px;
+    transition: left 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle.on .toggle-thumb,
+  .toggle.on-red .toggle-thumb { left: 20px; }
+
+  /* ─── Migraine card ─── */
+  .migraine-card {
+    background: var(--warn-light);
+    border: 1px solid rgba(196,75,43,0.25);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .migraine-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--warn-text);
+    margin-bottom: 12px;
+  }
+  .migraine-expand { display: none; margin-top: 14px; }
+  .migraine-expand.show { display: block; }
+  .migraine-sub { font-size: 12px; color: var(--warn); margin-bottom: 6px; font-weight: 500; }
+  input[type=range].migraine::-webkit-slider-thumb { background: var(--warn); }
+
+  /* ─── Text area ─── */
+  textarea {
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--surface);
+    resize: none;
+    outline: none;
+    line-height: 1.5;
+  }
+  textarea::placeholder { color: var(--text-hint); }
+  textarea:focus { border-color: var(--accent); }
+
+  /* ─── Save button ─── */
+  .save-btn {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 398px;
+    padding: 16px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(45,106,79,0.35);
+    transition: opacity 0.15s, transform 0.1s;
+    z-index: 50;
+  }
+  .save-btn:active { opacity: 0.85; transform: translateX(-50%) scale(0.99); }
+
+  /* ─── Toast ─── */
+  .toast {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: var(--text);
+    color: white;
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 200;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ─── History page ─── */
+  .history-entry {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+  }
+  .history-date { font-size: 13px; font-weight: 500; color: var(--text); }
+  .history-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+  .badge {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    font-weight: 500;
+  }
+  .badge-green  { background: var(--accent-light);  color: var(--accent-text); }
+  .badge-red    { background: var(--warn-light);    color: var(--warn-text);   border: 1px solid rgba(196,75,43,0.3); }
+  .badge-amber  { background: var(--amber-light);   color: var(--amber-text);  }
+  .badge-gray   { background: var(--surface2);      color: var(--text-muted);  }
+  .history-migraine { margin-top: 8px; font-size: 12px; color: var(--warn); font-weight: 500; }
+  .history-notes { margin-top: 6px; font-size: 12px; color: var(--text-muted); font-style: italic; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-hint); }
+  .empty-state .big { font-family: 'DM Serif Display', serif; font-size: 28px; margin-bottom: 8px; color: var(--text-muted); }
+
+  /* ─── Report page ─── */
+  .report-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    white-space: pre-wrap;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .report-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--purple-light);
+    color: var(--purple-text);
+    border: 1px solid rgba(75,61,143,0.25);
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    margin-bottom: 16px;
+    transition: opacity 0.15s;
+  }
+  .report-btn:active { opacity: 0.75; }
+  .report-btn:disabled { opacity: 0.5; cursor: default; }
+  .report-meta { font-size: 12px; color: var(--text-hint); text-align: center; margin-bottom: 14px; }
+  .loading-dots { display: inline-flex; gap: 4px; }
+  .loading-dots span {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--purple);
+    animation: bounce 1s infinite;
+  }
+  .loading-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* ─── Divider ─── */
+  .card-divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+  /* ─── API key prompt ─── */
+  .api-notice {
+    background: var(--amber-light);
+    border: 1px solid rgba(139,94,10,0.2);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--amber-text);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .api-input-row { display: flex; gap: 8px; margin-top: 10px; }
+  .api-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid rgba(139,94,10,0.3);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    background: white;
+    color: var(--text);
+    outline: none;
+  }
+  .api-save-btn {
+    padding: 10px 16px;
+    background: var(--amber);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <h1>Migraine Tracker</h1>
+  <div class="date-line" id="header-date"></div>
+</div>
+
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="showPage('log')">Log</div>
+  <div class="nav-tab" onclick="showPage('history')">History</div>
+  <div class="nav-tab" onclick="showPage('report')">Weekly report</div>
+</div>
+
+<!-- ═══════════════════════════════ LOG PAGE ═══════════════════════════════ -->
+<div class="page active" id="page-log">
+
+  <div class="section-label">Sleep</div>
+
+  <div class="card">
+    <div class="card-label">Hours slept</div>
+    <div class="slider-row">
+      <input type="range" min="3" max="12" value="7" step="0.5" id="sleep-hours"
+        oninput="document.getElementById('sleep-hours-val').textContent=parseFloat(this.value).toFixed(1)+'h'">
+      <span class="slider-val" id="sleep-hours-val">7.0h</span>
+    </div>
+    <div class="slider-ends"><span>3h</span><span>12h</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Sleep quality</div>
+    <div class="pill-row" id="sleep-quality">
+      <span class="pill" onclick="solo(this,'sleep-quality','sel-purple')">Poor</span>
+      <span class="pill" onclick="solo(this,'sleep-quality','sel-purple')">Fair</span>
+      <span class="pill sel-purple" onclick="solo(this,'sleep-quality','sel-purple')">Good</span>
+      <span class="pill" onclick="solo(this,'sleep-quality','sel-purple')">Great</span>
+    </div>
+  </div>
+
+  <div class="section-label">Wellbeing</div>
+
+  <div class="card">
+    <div class="card-label">Stress level</div>
+    <div class="slider-row">
+      <input type="range" min="1" max="10" value="3" step="1" id="stress"
+        oninput="document.getElementById('stress-val').textContent=this.value">
+      <span class="slider-val" id="stress-val">3</span>
+    </div>
+    <div class="slider-ends"><span>Low</span><span>High</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Caregiving load today</div>
+    <div class="pill-row" id="care-load">
+      <span class="pill sel-green" onclick="solo(this,'care-load','sel-green')">Normal</span>
+      <span class="pill" onclick="solo(this,'care-load','sel-green')">Heavier than usual</span>
+      <span class="pill" onclick="solo(this,'care-load','sel-green')">Rest day</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Hydration</div>
+    <div class="slider-row">
+      <input type="range" min="0" max="12" value="5" step="1" id="hydration"
+        oninput="document.getElementById('hyd-val').textContent=this.value+' gl'">
+      <span class="slider-val" id="hyd-val">5 gl</span>
+    </div>
+    <div class="slider-ends"><span>0</span><span>12 glasses</span></div>
+  </div>
+
+  <div class="section-label">Activity</div>
+
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Golf today</div>
+      </div>
+      <div class="toggle" id="golf-toggle" onclick="toggleGolf()"><div class="toggle-thumb"></div></div>
+    </div>
+    <div id="golf-detail" style="display:none; margin-top:12px;">
+      <div class="card-divider"></div>
+      <div class="card-hint" style="margin-top:8px; margin-bottom:8px;">Duration</div>
+      <div class="pill-row" id="golf-dur">
+        <span class="pill" onclick="solo(this,'golf-dur','sel-green')">9 holes</span>
+        <span class="pill sel-green" onclick="solo(this,'golf-dur','sel-green')">18 holes</span>
+        <span class="pill" onclick="solo(this,'golf-dur','sel-green')">Driving range</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Other activity</div>
+    <div class="pill-row" id="other-activity">
+      <span class="pill sel-green" onclick="solo(this,'other-activity','sel-green')">None</span>
+      <span class="pill" onclick="solo(this,'other-activity','sel-green')">Light walk</span>
+      <span class="pill" onclick="solo(this,'other-activity','sel-green')">Active</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Sun / heat exposure</div>
+    <div class="pill-row" id="sun-exp">
+      <span class="pill sel-green" onclick="solo(this,'sun-exp','sel-amber')">None</span>
+      <span class="pill" onclick="solo(this,'sun-exp','sel-amber')">Some</span>
+      <span class="pill" onclick="solo(this,'sun-exp','sel-amber')">Heavy</span>
+    </div>
+  </div>
+
+  <div class="section-label">Food &amp; drink</div>
+
+  <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Skipped or delayed a meal</div>
+      </div>
+      <div class="toggle" id="meal-skip-toggle" onclick="tog('meal-skip-toggle','on')"><div class="toggle-thumb"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Trigger foods today</div>
+    <div class="card-hint">Tap anything consumed</div>
+    <div class="pill-row" id="food-triggers">
+      <span class="pill" onclick="multi(this,'sel-red')">Aged cheese</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Red wine</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Alcohol</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Caffeine</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Chocolate</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Cured meats</span>
+      <span class="pill" onclick="multi(this,'sel-red')">MSG</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Citrus</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Sweeteners</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Onions</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Tomatoes</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Aubergine</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Peppers</span>
+      <span class="pill" onclick="multi(this,'sel-red')">Potatoes</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Caffeine amount</div>
+    <div class="pill-row" id="caffeine-amount">
+      <span class="pill sel-green" onclick="solo(this,'caffeine-amount','sel-amber')">None</span>
+      <span class="pill" onclick="solo(this,'caffeine-amount','sel-amber')">1–2 cups</span>
+      <span class="pill" onclick="solo(this,'caffeine-amount','sel-amber')">3+ cups</span>
+    </div>
+  </div>
+
+  <div class="section-label">Screen time</div>
+
+  <div class="card">
+    <div class="toggle-row" style="margin-bottom:14px">
+      <div>
+        <div class="toggle-label">Heavy screen at lunch</div>
+      </div>
+      <div class="toggle" id="screen-lunch" onclick="tog('screen-lunch','on')"><div class="toggle-thumb"></div></div>
+    </div>
+    <div class="card-divider"></div>
+    <div class="toggle-row" style="margin-top:14px">
+      <div>
+        <div class="toggle-label">Heavy screen this evening</div>
+      </div>
+      <div class="toggle on" id="screen-evening" onclick="tog('screen-evening','on')"><div class="toggle-thumb"></div></div>
+    </div>
+  </div>
+
+  <div class="section-label">Migraine</div>
+
+  <div class="migraine-card">
+    <div class="toggle-row">
+      <div class="migraine-title">Migraine today?</div>
+      <div class="toggle" id="migraine-toggle" onclick="toggleMigraine()"><div class="toggle-thumb"></div></div>
+    </div>
+    <div class="migraine-expand" id="migraine-detail">
+      <div class="migraine-sub">Severity</div>
+      <div class="slider-row" style="margin-bottom:4px">
+        <input type="range" min="1" max="10" value="5" step="1" class="migraine" id="migraine-sev"
+          oninput="document.getElementById('sev-val').textContent=this.value">
+        <span class="slider-val" id="sev-val" style="color:var(--warn)">5</span>
+      </div>
+      <div class="slider-ends" style="margin-bottom:14px"><span>Mild</span><span>Severe</span></div>
+      <div class="migraine-sub">Duration</div>
+      <div class="pill-row" id="migraine-dur" style="margin-bottom:14px">
+        <span class="pill" onclick="solo(this,'migraine-dur','sel-red')">Under 2h</span>
+        <span class="pill sel-red" onclick="solo(this,'migraine-dur','sel-red')">2–6h</span>
+        <span class="pill" onclick="solo(this,'migraine-dur','sel-red')">All day</span>
+      </div>
+      <div class="migraine-sub">Notes</div>
+      <textarea id="migraine-notes" rows="2" placeholder="e.g. started mid-morning, sensitive to light…"></textarea>
+    </div>
+  </div>
+
+  <div style="height: 90px"></div>
+</div>
+
+<button class="save-btn" onclick="saveLog()">Save today's log</button>
+
+<!-- ═══════════════════════════════ HISTORY PAGE ═══════════════════════════════ -->
+<div class="page" id="page-history">
+  <div style="padding-top:4px" id="history-list"></div>
+</div>
+
+<!-- ═══════════════════════════════ REPORT PAGE ═══════════════════════════════ -->
+<div class="page" id="page-report">
+  <div class="section-label" style="margin-top:4px">Weekly analysis</div>
+
+  <div class="card" style="margin-bottom:10px">
+    <div class="card-label" style="margin-bottom:6px">How this works</div>
+    <div style="font-size:13px; color:var(--text-muted); line-height:1.6;">
+      Tap the button below to copy your weekly data as a ready-made prompt. Then paste it into any AI — Claude, ChatGPT, or similar — and it will analyse your logs and highlight possible triggers.
+    </div>
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+      <a href="https://claude.ai" style="font-size:12px; padding:6px 12px; border-radius:var(--radius-pill); background:var(--purple-light); color:var(--purple-text); text-decoration:none; font-weight:500;">Open Claude.ai ↗</a>
+      <a href="https://chat.openai.com" style="font-size:12px; padding:6px 12px; border-radius:var(--radius-pill); background:var(--surface2); color:var(--text-muted); text-decoration:none; font-weight:500;">Open ChatGPT ↗</a>
+    </div>
+  </div>
+
+  <div class="report-meta" id="report-meta"></div>
+  <button class="report-btn" id="report-btn" onclick="copyPrompt()">Copy weekly prompt</button>
+
+  <div id="copy-confirm" style="display:none; text-align:center; padding:14px; font-size:13px; color:var(--accent); font-weight:500; background:var(--accent-light); border-radius:var(--radius); margin-bottom:10px;">
+    Prompt copied — now paste it into Claude.ai or ChatGPT
+  </div>
+
+  <div id="prompt-preview" style="display:none;">
+    <div class="section-label">Preview</div>
+    <div class="report-card" id="prompt-preview-text" style="font-size:12px; color:var(--text-muted); max-height:220px; overflow-y:auto;"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'migraine_logs_v1';
+
+function getLogs() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+}
+function saveLogs(logs) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+}
+function formatDate(d) {
+  return d.toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+}
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+document.getElementById('header-date').textContent = formatDate(new Date());
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.querySelector('.save-btn').style.display = name === 'log' ? 'block' : 'none';
+  if(name === 'history') renderHistory();
+  if(name === 'report') initReport();
+}
+
+function solo(el, groupId, cls) {
+  document.getElementById(groupId).querySelectorAll('.pill').forEach(p => {
+    p.className = 'pill';
+  });
+  el.classList.add(cls);
+}
+function multi(el, cls) {
+  if(el.classList.contains(cls)) el.className = 'pill';
+  else el.classList.add(cls);
+}
+function tog(id, cls) {
+  document.getElementById(id).classList.toggle(cls);
+}
+function toggleGolf() {
+  const t = document.getElementById('golf-toggle');
+  t.classList.toggle('on');
+  document.getElementById('golf-detail').style.display = t.classList.contains('on') ? 'block' : 'none';
+}
+function toggleMigraine() {
+  const t = document.getElementById('migraine-toggle');
+  t.classList.toggle('on-red');
+  document.getElementById('migraine-detail').classList.toggle('show', t.classList.contains('on-red'));
+}
+
+function getSelected(groupId) {
+  const sel = document.querySelector(`#${groupId} .pill.sel-green, #${groupId} .pill.sel-red, #${groupId} .pill.sel-amber, #${groupId} .pill.sel-purple`);
+  return sel ? sel.textContent.trim() : null;
+}
+function getMultiSelected(groupId) {
+  return Array.from(document.querySelectorAll(`#${groupId} .pill.sel-red, #${groupId} .pill.sel-amber`)).map(p => p.textContent.trim());
+}
+function isOn(id) {
+  const el = document.getElementById(id);
+  return el.classList.contains('on') || el.classList.contains('on-red');
+}
+
+function saveLog() {
+  const entry = {
+    date: todayKey(),
+    dateFormatted: formatDate(new Date()),
+    sleepHours: parseFloat(document.getElementById('sleep-hours').value),
+    sleepQuality: getSelected('sleep-quality'),
+    stress: parseInt(document.getElementById('stress').value),
+    careLoad: getSelected('care-load'),
+    hydration: parseInt(document.getElementById('hydration').value),
+    golfToday: isOn('golf-toggle'),
+    golfDuration: isOn('golf-toggle') ? getSelected('golf-dur') : null,
+    otherActivity: getSelected('other-activity'),
+    sunExposure: getSelected('sun-exp'),
+    mealSkipped: isOn('meal-skip-toggle'),
+    foodTriggers: getMultiSelected('food-triggers'),
+    caffeineAmount: getSelected('caffeine-amount'),
+    screenLunch: isOn('screen-lunch'),
+    screenEvening: isOn('screen-evening'),
+    migraineToday: isOn('migraine-toggle'),
+    migraineSeverity: isOn('migraine-toggle') ? parseInt(document.getElementById('migraine-sev').value) : null,
+    migraineDuration: isOn('migraine-toggle') ? getSelected('migraine-dur') : null,
+    migraineNotes: isOn('migraine-toggle') ? document.getElementById('migraine-notes').value.trim() : null,
+  };
+
+  const logs = getLogs();
+  logs[entry.date] = entry;
+  saveLogs(logs);
+  showToast('Log saved for today');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function renderHistory() {
+  const logs = getLogs();
+  const keys = Object.keys(logs).sort().reverse();
+  const el = document.getElementById('history-list');
+  if(keys.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="big">No logs yet</div><div>Start logging today to build your history.</div></div>';
+    return;
+  }
+  el.innerHTML = keys.map(k => {
+    const e = logs[k];
+    const badges = [];
+    badges.push(`<span class="badge badge-gray">${e.sleepHours}h sleep</span>`);
+    badges.push(`<span class="badge badge-gray">Stress ${e.stress}/10</span>`);
+    if(e.golfToday) badges.push(`<span class="badge badge-green">Golf${e.golfDuration ? ' — '+e.golfDuration : ''}</span>`);
+    if(e.mealSkipped) badges.push(`<span class="badge badge-amber">Meal skipped</span>`);
+    if(e.foodTriggers && e.foodTriggers.length > 0) e.foodTriggers.forEach(f => badges.push(`<span class="badge badge-amber">${f}</span>`));
+    if(e.sunExposure && e.sunExposure !== 'None') badges.push(`<span class="badge badge-amber">Sun: ${e.sunExposure}</span>`);
+    const migraineHtml = e.migraineToday
+      ? `<div class="history-migraine">Migraine — severity ${e.migraineSeverity}/10${e.migraineDuration ? ', '+e.migraineDuration : ''}</div>`
+        + (e.migraineNotes ? `<div class="history-notes">"${e.migraineNotes}"</div>` : '')
+      : '';
+    return `<div class="history-entry">
+      <div class="history-date">${e.dateFormatted}</div>
+      <div class="history-badges">${badges.join('')}</div>
+      ${migraineHtml}
+    </div>`;
+  }).join('');
+}
+
+function saveApiKey() {}
+
+function initReport() {
+  const logs = getLogs();
+  const keys = Object.keys(logs).sort().reverse().slice(0, 7);
+  const meta = document.getElementById('report-meta');
+  const btn = document.getElementById('report-btn');
+  if(keys.length === 0) {
+    meta.textContent = 'No logs yet — start logging daily and come back in a few days.';
+    btn.disabled = true;
+  } else {
+    meta.textContent = `Based on ${keys.length} day${keys.length > 1 ? 's' : ''} of logs`;
+    btn.disabled = false;
+  }
+  document.getElementById('copy-confirm').style.display = 'none';
+  document.getElementById('prompt-preview').style.display = 'none';
+}
+
+function buildPrompt() {
+  const logs = getLogs();
+  const keys = Object.keys(logs).sort().reverse().slice(0, 7);
+  const weekData = keys.map(k => logs[k]);
+
+  const dataText = weekData.map(e => {
+    const foods = e.foodTriggers && e.foodTriggers.length > 0 ? e.foodTriggers.join(', ') : 'none';
+    return `Date: ${e.dateFormatted}
+  Sleep: ${e.sleepHours}h, quality: ${e.sleepQuality || 'not logged'}
+  Stress: ${e.stress}/10
+  Caregiving load: ${e.careLoad || 'normal'}
+  Hydration: ${e.hydration} glasses
+  Golf: ${e.golfToday ? 'yes — ' + (e.golfDuration || 'unspecified') : 'no'}
+  Other activity: ${e.otherActivity || 'none'}
+  Sun/heat exposure: ${e.sunExposure || 'none'}
+  Meal skipped: ${e.mealSkipped ? 'yes' : 'no'}
+  Food triggers consumed: ${foods}
+  Caffeine: ${e.caffeineAmount || 'none'}
+  Screen at lunch: ${e.screenLunch ? 'yes' : 'no'}, evening: ${e.screenEvening ? 'yes' : 'no'}
+  Migraine: ${e.migraineToday ? `yes — severity ${e.migraineSeverity}/10, ${e.migraineDuration || 'duration unspecified'}${e.migraineNotes ? ', notes: ' + e.migraineNotes : ''}` : 'no'}`;
+  }).join('\n\n');
+
+  return `Please analyse this migraine diary and help identify possible triggers.
+
+This is for a woman in her early 60s who is active, plays golf regularly, and helps care for her elderly mother most days. Here is her log data for the past week:
+
+${dataText}
+
+Please provide a clear, warm, plain-English weekly report with:
+1. A brief summary of the week (2–3 sentences)
+2. Migraine events this week — when they occurred and key facts
+3. Possible triggers identified — look carefully for patterns on migraine days vs non-migraine days. Check sleep duration and quality, stress, dehydration, skipped meals, specific foods (consider a 1–2 day lag before migraines), sun and heat exposure, heavy caregiving days, and screen time. Note combinations.
+4. Two or three specific things to watch next week
+5. One encouraging observation if possible
+
+Please be specific and reference actual data points. Keep it friendly and practical. Add a brief reminder to discuss any findings with her GP or neurologist.`;
+}
+
+function copyPrompt() {
+  const prompt = buildPrompt();
+  navigator.clipboard.writeText(prompt).then(() => {
+    document.getElementById('copy-confirm').style.display = 'block';
+    document.getElementById('prompt-preview').style.display = 'block';
+    document.getElementById('prompt-preview-text').textContent = prompt;
+    document.getElementById('report-btn').textContent = 'Copy again';
+    setTimeout(() => {
+      document.getElementById('copy-confirm').style.display = 'none';
+    }, 4000);
+  }).catch(() => {
+    const preview = document.getElementById('prompt-preview-text');
+    preview.textContent = prompt;
+    document.getElementById('prompt-preview').style.display = 'block';
+    showToast('Long-press the text below and copy it');
+  });
+}
+
+async function generateReport() {}
+
+document.querySelector('.save-btn').style.display = 'block';
+
+const todayEntry = getLogs()[todayKey()];
+if(todayEntry) {
+  showToast("Today already logged — showing previous values");
+}
+</script>
+</body>
+</html>
