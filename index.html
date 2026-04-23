@@ -488,11 +488,36 @@
   </div>
 
   <div class="card">
+    <div class="toggle-row">
+      <div>
+        <div class="toggle-label">Gym today</div>
+      </div>
+      <div class="toggle" id="gym-toggle" onclick="toggleGym()"><div class="toggle-thumb"></div></div>
+    </div>
+    <div id="gym-detail" style="display:none; margin-top:12px;">
+      <div class="card-divider"></div>
+      <div class="card-hint" style="margin-top:8px; margin-bottom:8px;">Type</div>
+      <div class="pill-row" id="gym-type" style="margin-bottom:12px;">
+        <span class="pill" onclick="solo(this,'gym-type','sel-green')">Weights</span>
+        <span class="pill" onclick="solo(this,'gym-type','sel-green')">Cardio</span>
+        <span class="pill sel-green" onclick="solo(this,'gym-type','sel-green')">Both</span>
+        <span class="pill" onclick="solo(this,'gym-type','sel-green')">Group class</span>
+      </div>
+      <div class="card-hint" style="margin-bottom:8px;">Intensity</div>
+      <div class="pill-row" id="gym-intensity">
+        <span class="pill" onclick="solo(this,'gym-intensity','sel-amber')">Light</span>
+        <span class="pill sel-amber" onclick="solo(this,'gym-intensity','sel-amber')">Moderate</span>
+        <span class="pill" onclick="solo(this,'gym-intensity','sel-amber')">Hard</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-label">Other activity</div>
     <div class="pill-row" id="other-activity">
       <span class="pill sel-green" onclick="solo(this,'other-activity','sel-green')">None</span>
       <span class="pill" onclick="solo(this,'other-activity','sel-green')">Light walk</span>
-      <span class="pill" onclick="solo(this,'other-activity','sel-green')">Active</span>
+      <span class="pill" onclick="solo(this,'other-activity','sel-green')">Active day</span>
     </div>
   </div>
 
@@ -677,6 +702,11 @@ function toggleGolf() {
   t.classList.toggle('on');
   document.getElementById('golf-detail').style.display = t.classList.contains('on') ? 'block' : 'none';
 }
+function toggleGym() {
+  const t = document.getElementById('gym-toggle');
+  t.classList.toggle('on');
+  document.getElementById('gym-detail').style.display = t.classList.contains('on') ? 'block' : 'none';
+}
 function toggleMigraine() {
   const t = document.getElementById('migraine-toggle');
   t.classList.toggle('on-red');
@@ -706,6 +736,9 @@ function saveLog() {
     hydration: parseInt(document.getElementById('hydration').value),
     golfToday: isOn('golf-toggle'),
     golfDuration: isOn('golf-toggle') ? getSelected('golf-dur') : null,
+    gymToday: isOn('gym-toggle'),
+    gymType: isOn('gym-toggle') ? getSelected('gym-type') : null,
+    gymIntensity: isOn('gym-toggle') ? getSelected('gym-intensity') : null,
     otherActivity: getSelected('other-activity'),
     sunExposure: getSelected('sun-exp'),
     mealSkipped: isOn('meal-skip-toggle'),
@@ -746,6 +779,7 @@ function renderHistory() {
     badges.push(`<span class="badge badge-gray">${e.sleepHours}h sleep</span>`);
     badges.push(`<span class="badge badge-gray">Stress ${e.stress}/10</span>`);
     if(e.golfToday) badges.push(`<span class="badge badge-green">Golf${e.golfDuration ? ' — '+e.golfDuration : ''}</span>`);
+    if(e.gymToday) badges.push(`<span class="badge badge-green">Gym${e.gymType ? ' — '+e.gymType : ''}${e.gymIntensity ? ', '+e.gymIntensity : ''}</span>`);
     if(e.mealSkipped) badges.push(`<span class="badge badge-amber">Meal skipped</span>`);
     if(e.foodTriggers && e.foodTriggers.length > 0) e.foodTriggers.forEach(f => badges.push(`<span class="badge badge-amber">${f}</span>`));
     if(e.sunExposure && e.sunExposure !== 'None') badges.push(`<span class="badge badge-amber">Sun: ${e.sunExposure}</span>`);
@@ -792,6 +826,7 @@ function buildPrompt() {
   Caregiving load: ${e.careLoad || 'normal'}
   Hydration: ${e.hydration} glasses
   Golf: ${e.golfToday ? 'yes — ' + (e.golfDuration || 'unspecified') : 'no'}
+  Gym: ${e.gymToday ? 'yes — ' + (e.gymType || 'unspecified') + ', ' + (e.gymIntensity || 'unspecified intensity') : 'no'}
   Other activity: ${e.otherActivity || 'none'}
   Sun/heat exposure: ${e.sunExposure || 'none'}
   Meal skipped: ${e.mealSkipped ? 'yes' : 'no'}
